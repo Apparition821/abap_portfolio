@@ -1,0 +1,56 @@
+@Metadata.layer: #CUSTOMER
+
+@UI.headerInfo:
+{
+  typeNamePlural: 'Leave Entitlements',
+  typeName: 'Leave Entitlement',
+  title.value: 'CurrentYear'
+}
+@UI.presentationVariant: [{sortOrder: [{ by: 'CurrentYear', direction: #DESC }]}]
+
+annotate entity zlc_c_ent
+    with 
+{
+     @UI.facet:
+  [
+      { position: 10, targetQualifier: 'Entitlement', label: 'Leave Entitlements', type: #FIELDGROUP_REFERENCE },
+      { position: 20, targetQualifier: 'AdminData', label: 'Administrative Data', type: #FIELDGROUP_REFERENCE }
+  ]
+
+  @UI.fieldGroup: [{ position: 10, qualifier: 'AdminData' }]  
+  EntitlementUuid;
+
+  @UI.fieldGroup: [{ position: 10, qualifier: 'Entitlement' }]
+  @UI.lineItem: [{ position: 10 }] 
+  CurrentYear;
+  
+  @UI.fieldGroup: [{ position: 20, qualifier: 'Entitlement' }]
+  @UI.lineItem: [{ position: 20 }] 
+  AnnualLeave;
+  
+  @UI.fieldGroup: [{ position: 30, qualifier: 'Entitlement', label: 'Remaining Days' }]
+  @UI.lineItem: [{ position: 30, label: 'Remaining Days' }]
+  RemainingDays;
+ 
+  @UI.fieldGroup: [{ position: 40, qualifier: 'Entitlement', label: 'Planned Days' }]
+  @UI.lineItem: [{ position: 40, label: 'Planned Days' }] 
+  PlannedDays;
+
+  @UI.fieldGroup: [{ position: 50, qualifier: 'Entitlement', label: 'Used Days' }]
+  @UI.lineItem: [{ position: 50, label: 'Used Days' }] 
+  UsedDays;
+  
+  @UI.fieldGroup: [{ position: 20, qualifier: 'AdminData' }]
+  CreatedBy;
+  
+  @UI.fieldGroup: [{ position: 30, qualifier: 'AdminData' }]
+  CreatedAt;
+  
+  @UI.fieldGroup: [{ position: 40, qualifier: 'AdminData' }]
+  LastChangedBy;
+  
+  @UI.fieldGroup: [{ position: 50, qualifier: 'AdminData' }]
+  LastChangedAt;
+  
+    
+}

@@ -1,0 +1,85 @@
+managed implementation in class zbp_lc_r_employee unique;
+strict ( 2 );
+
+define behavior for ZLC_R_Employee alias Employee
+persistent table zlc_employee
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  field ( readonly, numbering : managed ) EmployeeUuid;
+
+  association _entitlement { }
+  association _request { create; }
+  mapping for zlc_employee corresponding
+    {
+      EmployeeUuid  = employee_uuid;
+      EmployeeId    = employee_id;
+      FirstName     = first_name;
+      LastName      = last_name;
+      EntryDate     = entry_date;
+      CreatedAt     = created_at;
+      CreatedBy     = created_by;
+      LastChangeAt  = last_change_at;
+      LastChangedBy = last_changed_by;
+    }
+}
+
+define behavior for ZLC_R_ENT alias Entitlement
+persistent table zlc_ent
+lock dependent by _employee
+authorization dependent by _employee
+//etag master <field_name>
+{
+  field ( readonly, numbering : managed ) EntitlementUuid;
+  field ( readonly ) EmployeeUuid, AnnualLeave, RemainingDays;
+  association _employee;
+  mapping for zlc_ent corresponding
+    {
+      EntitlementUuid = entitlement_uuid;
+      EmployeeUuid    = employee_uuid;
+      CurrentYear     = current_year;
+      AnnualLeave     = annual_leave;
+      CreatedAt       = created_at;
+      CreatedBy       = created_by;
+      LastChangedAt   = last_changed_at;
+      LastChangedBy   = last_changed_by;
+    }
+}
+
+define behavior for ZLC_R_REQ alias Request
+persistent table zlc_req
+lock dependent by _employee
+authorization dependent by _employee
+//etag master <field_name>
+{
+  update;
+  delete;
+
+  validation ValidateDates on save { create; update; }
+  validation NotEnoughDaysLeft on save { create; update; }
+
+  determination DetermineStatus on modify { create; update; }
+  determination DetermineDaysOff on modify { create; update; }
+
+  field ( readonly, numbering : managed ) RequestUuid;
+  field ( readonly ) ApplicantUuid, CreatedAt, CreatedBy, LastChangedAt, LastChangedBy, LeaveDays, Status;
+  field ( mandatory ) ApproverUuid, StartDate, EndDate;
+  association _employee;
+
+  mapping for zlc_req corresponding
+    {
+      RequestUuid   = request_uuid;
+      ApplicantUuid = applicant_uuid;
+      ApproverUuid  = approver_uuid;
+      StartDate     = start_date;
+      EndDate       = end_date;
+      LeaveDays     = leave_days;
+      Details       = details;
+      Status        = status;
+      CreatedAt     = created_at;
+      CreatedBy     = created_by;
+      LastChangedAt = last_changed_at;
+      LastChangedBy = last_changed_by;
+    }
+}

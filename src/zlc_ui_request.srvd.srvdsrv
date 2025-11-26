@@ -1,0 +1,6 @@
+@EndUserText.label: 'service definition for applying'
+define service ZLC_UI_REQUEST {
+  expose zlc_c_employee as ZLC_EMPLOYEES;
+  expose zlc_c_ent      as ZLC_ENTITLEMENTS;
+  expose zlc_c_req      as ZLC_REQUESTS;
+}

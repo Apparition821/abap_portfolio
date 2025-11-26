@@ -1,0 +1,23 @@
+projection;
+strict ( 2 );
+
+define behavior for zlc_c_employee alias Employee
+{
+
+  use association _entitlement;
+  use association _request { create; }
+}
+
+define behavior for zlc_c_ent alias Entitlement
+{
+
+  use association _employee;
+}
+
+define behavior for zlc_c_req alias Request
+{
+  use update;
+  use delete;
+
+  use association _employee;
+}
