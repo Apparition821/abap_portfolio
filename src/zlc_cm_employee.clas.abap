@@ -39,6 +39,37 @@ CLASS zlc_cm_employee DEFINITION
         attr4  TYPE scx_attrname VALUE '',
       END OF different_years.
 
+     CONSTANTS:
+      BEGIN OF already_processed,
+        msg_id TYPE symsgid VALUE 'ZLC_REQ',
+        msgno  TYPE symsgno VALUE '004',
+        attr1  TYPE scx_attrname VALUE '',
+        attr2  TYPE scx_attrname VALUE '',
+        attr3  TYPE scx_attrname VALUE '',
+        attr4  TYPE scx_attrname VALUE '',
+      END OF already_processed.
+
+     CONSTANTS:
+      BEGIN OF approved,
+        msg_id TYPE symsgid VALUE 'ZLC_REQ',
+        msgno  TYPE symsgno VALUE '005',
+        attr1  TYPE scx_attrname VALUE '',
+        attr2  TYPE scx_attrname VALUE '',
+        attr3  TYPE scx_attrname VALUE '',
+        attr4  TYPE scx_attrname VALUE '',
+      END OF approved.
+
+     CONSTANTS:
+      BEGIN OF rejected,
+        msg_id TYPE symsgid VALUE 'ZLC_REQ',
+        msgno  TYPE symsgno VALUE '006',
+        attr1  TYPE scx_attrname VALUE '',
+        attr2  TYPE scx_attrname VALUE '',
+        attr3  TYPE scx_attrname VALUE '',
+        attr4  TYPE scx_attrname VALUE '',
+      END OF rejected.
+
+
 
     DATA remaining_leave_days TYPE i.
     DATA requested_leave_days TYPE i.

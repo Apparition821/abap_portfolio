@@ -6,46 +6,35 @@
   typeName: 'Vacation Request',
   title.value: 'Details'
 }
-@UI.presentationVariant: [{sortOrder: [{ by: 'StartDate', direction: #DESC }]}]
+@UI.presentationVariant: [{ sortOrder: [{ by: 'StartDate', direction: #DESC }]}]
 annotate entity zlc_c_req
     with 
 {
-    @UI.facet:
+  @UI.facet:
   [
-    { position: 10, targetQualifier: 'Request', label: 'Leave Requests', type: #FIELDGROUP_REFERENCE },
-    { position: 10, targetQualifier: 'UserData', label: 'User Data', type: #FIELDGROUP_REFERENCE },
+    { position: 10, targetQualifier: 'Request',   label: 'Leave Requests',      type: #FIELDGROUP_REFERENCE },
+    { position: 20, targetQualifier: 'UserData',  label: 'User Data',           type: #FIELDGROUP_REFERENCE },
     { position: 30, targetQualifier: 'AdminData', label: 'Administrative Data', type: #FIELDGROUP_REFERENCE }
   ]
 
   @UI.fieldGroup: [{ position: 10, qualifier: 'AdminData' }]
+  @UI.lineItem: [
+    {
+      position: 90,
+      type: #FOR_ACTION,
+      dataAction: 'approve',
+      label: 'Genehmigen',
+      importance: #HIGH
+    },
+    {
+      position: 100,
+      type: #FOR_ACTION,
+      dataAction: 'reject',
+      label: 'Ablehnen',
+      importance: #HIGH
+    }
+  ]
   RequestUuid;
-
-  @UI.fieldGroup: [{ position: 10, qualifier: 'UserData', label: 'Applicant' }]
-  ApplicantUuid;
-
-  @UI.fieldGroup: [{ position: 10, qualifier: 'Request' }]
-  @UI.lineItem: [{ position: 10 }]
-  StartDate;
-
-  @UI.fieldGroup: [{ position: 20, qualifier: 'Request' }]
-  @UI.lineItem: [{ position: 20 }]
-  EndDate;
-  
-  @UI.fieldGroup: [{ position: 20, qualifier: 'UserData', label: 'Approver' }]
-  @UI.lineItem: [{ position: 60, label: 'Approver' }]
-  ApproverUuid;
-
-  @UI.fieldGroup: [{ position: 30, qualifier: 'Request' }]
-  @UI.lineItem: [{ position: 30 }]
-  LeaveDays;
-
-  @UI.fieldGroup: [{ position: 40, qualifier: 'Request' }]
-  @UI.lineItem: [{ position: 40 }]
-  Details;
-
-  @UI.fieldGroup: [{ position: 50, qualifier: 'Request' }]
-  @UI.lineItem: [{ position: 50 }]
-  Status;
 
   @UI.fieldGroup: [{ position: 20, qualifier: 'AdminData' }]
   CreatedBy;
@@ -59,5 +48,38 @@ annotate entity zlc_c_req
   @UI.fieldGroup: [{ position: 50, qualifier: 'AdminData' }]
   LastChangedAt;
 
-    
+  @UI.fieldGroup: [{ position: 10, qualifier: 'UserData', label: 'Applicant' }]
+  ApplicantUuid;
+
+  @UI.fieldGroup: [{ position: 20, qualifier: 'UserData', label: 'Approver' }]
+  @UI.lineItem: [{ position: 60, label: 'Approver' }]
+  ApproverUuid;
+
+
+  @UI.fieldGroup: [{ position: 10, qualifier: 'Request' }]
+  @UI.lineItem: [{ position: 10 }]
+  StartDate;
+
+  @UI.fieldGroup: [{ position: 20, qualifier: 'Request' }]
+  @UI.lineItem: [{ position: 20 }]
+  EndDate;
+  
+  @UI.fieldGroup: [{ position: 30, qualifier: 'Request' }]
+  @UI.lineItem: [{ position: 30 }]
+  LeaveDays;
+
+  @UI.fieldGroup: [{ position: 40, qualifier: 'Request' }]
+  @UI.lineItem: [{ position: 40, label: 'Kommentar' }]
+  Details;
+
+  @UI.fieldGroup: [{ position: 50, qualifier: 'Request' }]
+  @UI.lineItem: [{ position: 50 }]
+  @UI.selectionField: [{ position: 20 }]
+  Status;
+
+
+  @UI.lineItem: [{ position: 15, label: 'Antragsteller' }]
+  @UI.selectionField: [{ position: 10 }]
+  ApplicantName;
+
 }

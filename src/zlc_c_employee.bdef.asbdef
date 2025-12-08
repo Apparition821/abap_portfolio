@@ -19,5 +19,8 @@ define behavior for zlc_c_req alias Request
   use update;
   use delete;
 
+  use action approve;
+  use action reject;
+
   use association _employee;
 }

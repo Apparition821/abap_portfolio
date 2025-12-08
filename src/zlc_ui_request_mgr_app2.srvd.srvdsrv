@@ -1,0 +1,4 @@
+@EndUserText.label: 'service definition for manager approval'
+define service ZLC_UI_REQUEST_MGR_APP2 {
+  expose ZLC_C_REQ_MGR as ZLC_REQUESTS_MGR;
+}

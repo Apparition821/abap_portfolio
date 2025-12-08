@@ -26,6 +26,24 @@
      <MSGNR>003</MSGNR>
      <TEXT>The start date and the end date should be in the same year!</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLC_REQ</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Error - The request has already been denied or approved!</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLC_REQ</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>The request has been successfully approved!</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLC_REQ</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>The leave request has been denied!</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

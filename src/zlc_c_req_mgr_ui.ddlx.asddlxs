@@ -1,0 +1,56 @@
+@Metadata.layer: #CUSTOMER
+@Search.searchable: true
+annotate entity ZLC_C_REQ_MGR
+  with
+{
+
+
+
+  @UI.lineItem: [{ position: 10, label: 'Start Date' }]
+  StartDate;
+
+  @UI.lineItem: [{ position: 20, label: 'End Date' }]
+  EndDate;
+
+  @UI.lineItem: [{ position: 30, label: 'Days Off' }]
+  LeaveDays;         
+
+  @UI.lineItem: [{ position: 40, label: 'Kommentar' }]
+  @Search.defaultSearchElement: true
+  @Search.fuzzinessThreshold: 0.7
+  Details;
+
+  @UI.lineItem: [{ position: 50, label: 'Status' }]
+  @UI.selectionField: [{ position: 20 }]
+  @Consumption.filter.selectionType: #RANGE
+  Status;
+
+  @UI.lineItem: [{ position: 60, label: 'Antragsteller' }]
+  @UI.selectionField: [{ position: 10 }]
+  @Consumption.filter.selectionType: #RANGE
+  ApplicantName;
+
+  @UI.lineItem: [{ position: 70, label: 'Approver' }]
+  ApproverName;
+
+
+
+  @UI.lineItem: [
+    {
+      position: 100,
+      type: #FOR_ACTION,
+      dataAction: 'approve',
+      label: 'Genehmigen',
+      importance: #HIGH
+    },
+    {
+      position: 110,
+      type: #FOR_ACTION,
+      dataAction: 'reject',
+      label: 'Ablehnen',
+      importance: #HIGH
+    }
+  ]
+  RequestUuid;
+
+}

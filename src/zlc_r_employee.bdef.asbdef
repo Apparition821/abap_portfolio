@@ -56,6 +56,9 @@ authorization dependent by _employee
   update;
   delete;
 
+  action approve result [1] $self;
+  action reject  result [1] $self;
+
   validation ValidateDates on save { create; update; }
   validation NotEnoughDaysLeft on save { create; update; }
 
