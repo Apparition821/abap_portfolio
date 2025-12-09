@@ -1,5 +1,3 @@
-# abap_portfolio
-
 # ABAP Portfolio: Urlaubsantragsverwaltung
 
 Dieses Repository enthält die ABAP-Implementierung einer Anwendung zur Verwaltung von Urlaubsanträgen (Vacation Request Management System). Das Projekt wurde im Rahmen der Vorlesung als Prüfungsleistung erstellt.
