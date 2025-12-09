@@ -4,8 +4,8 @@ Dieses Repository enthält die ABAP-Implementierung einer Anwendung zur Verwaltu
 
 ## 👥 Projektteam
 
-* **Chenmengxuan Liu - App 1**
-* **Jan Kurzweil - App 2**
+* **Chenmengxuan Liu**
+* **Jan Kurzweil**
 
 
 ---
@@ -31,7 +31,7 @@ Die Anwendung ermöglicht es Mitarbeitern, Urlaubstage zu verwalten, neue Anträ
     * Automatische Generierung der Antrags-ID. _(A1.07)_
     * Der aktuelle Nutzer wird automatisch als Antragssteller gesetzt. _(A1.08)_
     * Initialstatus wird automatisch auf **"B" (Beantragt)** gesetzt. _(A1.09)_
-* **Validierung (Plauschibilitätsprüfung):**
+* **Validierung (Plausibilitätsprüfung):**
     * **Urlaubsanspruch:** Es wird geprüft, ob genügend Resturlaub vorhanden ist. Falls nicht, wird das Speichern verhindert und eine Fehlermeldung ausgegeben. _(A1.12)_
     * **Datumslogik:** Es wird verhindert, dass das Enddatum vor dem Startdatum liegt. _(A1.13)_
 * **Pflichtfelder:** Genehmigender, Start- und Enddatum sind Pflichtfelder. ID, Antragssteller und Status sind schreibgeschützt (Read-only). _(A1.14)_
