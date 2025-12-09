@@ -56,14 +56,11 @@ authorization dependent by _employee
   update;
   delete;
 
-  action approve result [1] $self;
-  action reject  result [1] $self;
+ validation ValidateDates on save { field StartDate, EndDate; }
+  validation NotEnoughDaysLeft on save { field StartDate, EndDate, LeaveDays; }
 
-  validation ValidateDates on save { create; update; }
-  validation NotEnoughDaysLeft on save { create; update; }
-
-  determination DetermineStatus on modify { create; update; }
-  determination DetermineDaysOff on modify { create; update; }
+determination DetermineStatus on modify { field StartDate, EndDate; }
+  determination DetermineDaysOff on modify { field StartDate, EndDate; }
 
   field ( readonly, numbering : managed ) RequestUuid;
   field ( readonly ) ApplicantUuid, CreatedAt, CreatedBy, LastChangedAt, LastChangedBy, LeaveDays, Status;

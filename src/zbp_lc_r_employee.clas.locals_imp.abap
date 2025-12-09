@@ -15,14 +15,6 @@ CLASS lhc_zlc_r_Employee DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS determinedaysoff FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Request~DetermineDaysOff.
-    METHODS get_instance_authorizations_1 FOR INSTANCE AUTHORIZATION
-      IMPORTING keys REQUEST requested_authorizations FOR Request RESULT result.
-
-    METHODS approve FOR MODIFY
-      IMPORTING keys FOR ACTION Request~approve RESULT result.
-
-    METHODS reject FOR MODIFY
-      IMPORTING keys FOR ACTION Request~reject RESULT result.
 
 ENDCLASS.
 
@@ -67,201 +59,115 @@ CLASS lhc_zlc_r_Employee IMPLEMENTATION.
   ENDMETHOD.
 
 METHOD notenoughdaysleft.
-
     DATA message TYPE REF TO zlc_cm_employee.
+    DATA lv_pattern TYPE string.
+    DATA lv_annual_leave TYPE i.
+    DATA lv_sum_existing TYPE i.
+    DATA lv_current_days TYPE i.
 
     READ ENTITY IN LOCAL MODE zlc_r_req
-    ALL FIELDS
-    WITH CORRESPONDING #( keys )
-    RESULT DATA(requests).
+         FIELDS ( StartDate EndDate LeaveDays ApplicantUuid RequestUuid )
+         WITH CORRESPONDING #( keys )
+         RESULT DATA(requests).
 
     LOOP AT requests INTO DATA(request).
+      IF request-StartDate IS INITIAL.
+        CONTINUE.
+      ENDIF.
 
-      TRY.
-          DATA(calendar) = cl_fhc_calendar_runtime=>create_factorycalendar_runtime( 'SAP_DE_BW' ).
-          DATA(leave_days) = ( calendar->calc_workingdays_between_dates( iv_start = request-StartDate iv_end = request-EndDate ) + 1 ) .
-        CATCH cx_fhc_runtime.
-          CONTINUE.
-      ENDTRY.
+      DATA(current_year) = request-StartDate(4).
 
-      SELECT SINGLE FROM zlc_r_ent FIELDS RemainingDays WHERE CurrentYear = @request-StartDate+0(4) INTO @DATA(remaining_days).
+      SELECT SINGLE AnnualLeave
+        FROM zlc_r_ent
+        WHERE EmployeeUuid = @request-ApplicantUuid
+          AND CurrentYear  = @current_year
+        INTO @lv_annual_leave.
 
-      IF remaining_days < leave_days.
-        message = NEW zlc_cm_employee( textid = zlc_cm_employee=>not_enough_days_left
-                                         remaining_leave_days = remaining_days
-                                         requested_leave_days = leave_days ).
+      IF sy-subrc <> 0.
+        lv_annual_leave = 0.
+      ENDIF.
+
+      lv_pattern = current_year && '%'.
+
+      SELECT SINGLE SUM( leave_days )
+        FROM zlc_req
+        WHERE applicant_uuid = @request-ApplicantUuid
+          AND start_date     LIKE @lv_pattern
+          AND status         <> 'R'               " 排除已拒绝
+          AND request_uuid   <> @request-RequestUuid " 排除自己
+        INTO @lv_sum_existing.
+
+      lv_current_days = request-LeaveDays.
+
+      IF ( lv_sum_existing + lv_current_days ) > lv_annual_leave.
+
+        message = NEW zlc_cm_employee(
+            textid = zlc_cm_employee=>not_enough_days_left
+            remaining_leave_days = lv_annual_leave - lv_sum_existing
+            requested_leave_days = lv_current_days ).
 
         APPEND VALUE #( %tky = request-%tky
                         %msg = message ) TO reported-request.
 
         APPEND VALUE #( %tky = request-%tky ) TO failed-request.
+
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
 
-  METHOD determinestatus.
-
-  READ ENTITY IN LOCAL MODE zlc_r_req
-       FIELDS ( Status )
-       WITH CORRESPONDING #( keys )
-       RESULT DATA(requests).
-
-  LOOP AT requests INTO DATA(request).
-
-    "Set status to B only if it is still initial (newly created)
-    IF request-Status IS NOT INITIAL.
-      CONTINUE.
-    ENDIF.
-
-    MODIFY ENTITY IN LOCAL MODE zlc_r_req
-      UPDATE FIELDS ( Status )
-      WITH VALUE #(
-        ( %tky   = request-%tky
-          Status = 'B' )
-      ).
-
-  ENDLOOP.
-
-ENDMETHOD.
-
-
-  METHOD determinedaysoff.
-
-    READ ENTITY IN LOCAL MODE zlc_r_req
-    ALL FIELDS
-    WITH CORRESPONDING #( keys )
-    RESULT DATA(requests).
-
-    LOOP AT requests INTO DATA(request).
-
-      TRY.
-          DATA(calendar) = cl_fhc_calendar_runtime=>create_factorycalendar_runtime( 'SAP_DE_BW' ).
-          DATA(leave_days) = ( calendar->calc_workingdays_between_dates( iv_start = request-StartDate iv_end = request-EndDate ) + 1 ) .
-        CATCH cx_fhc_runtime.
-          CONTINUE.
-      ENDTRY.
-
-      IF request-LeaveDays = leave_days.
-        CONTINUE.
-      ENDIF.
-
-      MODIFY ENTITY IN LOCAL MODE zlc_r_req
-             UPDATE FIELDS ( LeaveDays )
-             WITH VALUE #( FOR key IN keys
-                           ( %tky         = key-%tky
-                             LeaveDays = leave_days
-                             %control-LeaveDays = if_abap_behv=>mk-on ) ).
-
-    ENDLOOP.
-  ENDMETHOD.
-  METHOD get_instance_authorizations_1.
-  ENDMETHOD.
-
-  METHOD approve.
-
-    DATA message TYPE REF TO zlc_cm_employee.
-
-    "Read current status of all selected requests
+METHOD determinestatus.
     READ ENTITY IN LOCAL MODE zlc_r_req
          FIELDS ( Status )
          WITH CORRESPONDING #( keys )
          RESULT DATA(requests).
 
     LOOP AT requests INTO DATA(request).
-
-      "A2.08: already approved or rejected -> error, no change
-      IF request-Status = 'G' OR request-Status = 'A'.
-
-        " -> ERROR (default severity from constructor)
-        message = NEW zlc_cm_employee(
-                     textid = zlc_cm_employee=>already_processed
-                   ).
-
-        APPEND VALUE #( %tky = request-%tky
-                        %msg = message ) TO reported-request.
-
-        APPEND VALUE #( %tky = request-%tky ) TO failed-request.
-
+      IF request-Status = 'B'.
         CONTINUE.
       ENDIF.
 
-      "Set status to G (Genehmigt) – A2.05
       MODIFY ENTITY IN LOCAL MODE zlc_r_req
-             UPDATE FIELDS ( Status )
-             WITH VALUE #(
-               ( %tky   = request-%tky
-                 Status = 'G' ) ).
-
-      "Success message – A2.07 (green toast)
-      message = NEW zlc_cm_employee(
-                   textid   = zlc_cm_employee=>approved
-                   severity = if_abap_behv_message=>severity-success
-                ).
-
-      APPEND VALUE #( %tky = request-%tky
-                      %msg = message ) TO reported-request.
-
-      "Action result: just return the key of the changed entity
-      APPEND VALUE #( %tky = request-%tky ) TO result.
-
+           UPDATE FIELDS ( Status )
+           WITH VALUE #( ( %tky   = request-%tky
+                           Status = 'B' ) ).
     ENDLOOP.
-
   ENDMETHOD.
 
-
-
-
-
-   METHOD reject.
-
-    DATA message TYPE REF TO zlc_cm_employee.
+ METHOD determinedaysoff.
 
     READ ENTITY IN LOCAL MODE zlc_r_req
-         FIELDS ( Status )
+         FIELDS ( StartDate EndDate )
          WITH CORRESPONDING #( keys )
          RESULT DATA(requests).
 
     LOOP AT requests INTO DATA(request).
+      DATA(leave_days) = 0.
 
-      "A2.08: already processed -> error
-      IF request-Status = 'G' OR request-Status = 'A'.
-
-        "Default severity = ERROR (correct)
-        message = NEW zlc_cm_employee(
-                     textid = zlc_cm_employee=>already_processed
-                   ).
-
-        APPEND VALUE #( %tky = request-%tky
-                        %msg = message ) TO reported-request.
-
-        APPEND VALUE #( %tky = request-%tky ) TO failed-request.
-
+      IF request-StartDate IS INITIAL OR request-EndDate IS INITIAL OR request-EndDate < request-StartDate.
         CONTINUE.
       ENDIF.
 
-      "Set status to A (Abgelehnt) – A2.06
-      MODIFY ENTITY IN LOCAL MODE zlc_r_req
-             UPDATE FIELDS ( Status )
-             WITH VALUE #(
-               ( %tky   = request-%tky
-                 Status = 'A' ) ).
+      TRY.
+          DATA(calendar) = cl_fhc_calendar_runtime=>create_factorycalendar_runtime( 'SAP_DE_BW' ).
+          leave_days = calendar->calc_workingdays_between_dates(
+                                    iv_start = request-StartDate
+                                    iv_end   = request-EndDate ).
 
-      "Success message – A2.07 (green toast)
-      message = NEW zlc_cm_employee(
-                   textid   = zlc_cm_employee=>rejected
-                   severity = if_abap_behv_message=>severity-success
-                ).
+      CATCH cx_fhc_runtime.
+          leave_days = ( request-EndDate - request-StartDate ) + 1.
+      ENDTRY.
 
-      APPEND VALUE #( %tky = request-%tky
-                      %msg = message ) TO reported-request.
+      IF leave_days <= 0.
+         leave_days = ( request-EndDate - request-StartDate ) + 1.
+      ENDIF.
 
-      "Action result: return the key
-      APPEND VALUE #( %tky = request-%tky ) TO result.
+      IF request-LeaveDays <> leave_days.
+        MODIFY ENTITY IN LOCAL MODE zlc_r_req
+               UPDATE FIELDS ( LeaveDays )
+               WITH VALUE #( ( %tky      = request-%tky
+                               LeaveDays = leave_days ) ).
+      ENDIF.
 
     ENDLOOP.
-
   ENDMETHOD.
-
-
-
 ENDCLASS.
